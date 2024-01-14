@@ -1,6 +1,6 @@
 import com.sun.jdi.Field
 
-class StandfelderEinzeln(typ:String) {
+class StandfelderEinzeln(typ:String,feldZaehler:Int) {
 
     // erste Erstellung leer, dann auffüllen mit Inhalten
 
