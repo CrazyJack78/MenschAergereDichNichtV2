@@ -45,21 +45,27 @@ class Spieler(name:String) {
         }
 
         println("Du kannst eine Figur einsetzen, welche möchtest du ziehen")
-        while (true){
-            val gewaehlteFigur = spielerFiguren[figurAuswahl()-1]
-            println("figur angekommen")
 
-            if (wurf < 6 && gewaehlteFigur.figurWait){
-                println("Diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
-            }else if (gewaehlteFigur.figurImZiel){
-                println("Diese Figur ist schon im Ziel und kann nicht mehr bewegt werden, bitte wähle eine andere")
+        while (true){
+            val gewaehlteFigur = spielerFiguren[figurAuswahl()-1] // lässt einen eine Figur auswählen
+
+            if (gewaehlteFigur.figurWait){
+                if (wurf == 6){
+                    if (warteFigurSetzen(gewaehlteFigur)) return // funktion zu setzen aufrufen und ob gesetzt wurde zurückgeben
+
+                }else {
+                    println("Diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
+                    // zurück zum while begin
+                }
+            }else if (gewaehlteFigur.figurImZiel) {
+                println("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
             }else if (gewaehlteFigur.figurAufZielGerade){
                 // TODO auf zielgerade kann nicht übersprungen werden Überprüfung
-            }else {
-                println("6 setzen")
-                figurSetzen(gewaehlteFigur)
-                return
+            }else if (gewaehlteFigur.figurLaeuft){
+                if (laufFigurSetzen(gewaehlteFigur,wurf)) return // funktion zum setzen aufrufen und ob gestzt wurde zurückgeben
+
             }
+
         }
 
 
@@ -83,29 +89,53 @@ class Spieler(name:String) {
         }
     }
 
-    fun figurSetzen(gewaehlteFigur:Spielfiguren){
+    fun warteFigurSetzen(gewaehlteFigur:Spielfiguren):Boolean{
         gewaehlteFigur.figurFeld[0].feldLeeren()
-        println("Feld: ${gewaehlteFigur.figurFeld[0].feldNummer}")
-        if (gewaehlteFigur.figurWait){
+        val zielFeld = laufFeldListe[startfeld]
+        val zielLaufFeldNummer = zielFeld.feldIdNummer
+
             // Besetztes Feld?
-            if (laufFeldListe[startfeld].playerOnField){
-                // Gegner zurück auf Wartefeld
-                rausWurf(laufFeldListe[startfeld])
+            if (zielFeld.playerOnField){ // Überprüft ob schon eine Figur auf dem Feld steht
+                if (zielFeld.playerID == spielerID){
+                    println("Da steht schon eine Figur von Dir, wähle eine andere")
+                    return false
+                }else rausWurf(zielFeld) // wen ja wird die Rauswurffunktion angestoßen
             }
             // Status Figur anpassen
             gewaehlteFigur.figurWait = false // Warten Status wird gelöscht
             gewaehlteFigur.figurLaeuft = true // Laufen Status wird gesetzt
-            laufFeldListe[startfeld].feldBesetzen(gewaehlteFigur.figurZeichen,spielerID) // Feld wird mit den Daten des Spielers geschrieben
-            gewaehlteFigur.feldNummer = startfeld   // die Figur bekommt die Daten des Feldes geschrieben zum Abruf wo die Figur ist
+            gewaehlteFigur.feldNummer = zielLaufFeldNummer // die figur bekommt di Id des neuen Feldes
+            zielFeld.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID) // Feld wird mit den Daten des Spielers geschrieben
+            // gewaehlteFigur.feldNummer = startfeld   // die Figur bekommt die Daten des Feldes geschrieben zum Abruf wo die Figur ist
 
 
-        }else if (gewaehlteFigur.figurLaeuft){
 
-        }else if (gewaehlteFigur.figurAufZielGerade){
+        BildAusgabe()
+        return true
+    }
+
+    fun laufFigurSetzen(gewaehlteFigur: Spielfiguren,wurf:Int): Boolean{
+        var neuesZielFeldNummer = 0
+        val standFeldFigur = gewaehlteFigur.figurFeld[0].feldIdNummer // LaufFeld auf dem die Figur gerade steht
+        val altesFeld = gewaehlteFigur.figurFeld[0]
+        neuesZielFeldNummer = standFeldFigur + wurf // die FeldId von derzeitigen Feld weiterzählen
+        if (neuesZielFeldNummer-startfeld < 40){ // Überprüfen ob du schon eine Runde rum bist
+            neuesZielFeldNummer = neuesZielFeldNummer%40 // ab Feld 40 neu anfangen zu zählen
+            val neuesZielFeld = laufFeldListe[neuesZielFeldNummer]
+            if (neuesZielFeld.playerOnField){ // steht schon ein spieler auf dem Feld
+                if (neuesZielFeld.playerID == spielerID){ // ist es der eigene?
+                    println("Da steht schon eine Figur von Dir, wähle eine andere")
+                    return false
+                }else rausWurf(neuesZielFeld) // fremder spieler
+            }
+            // Status anpassen
+            altesFeld.feldLeeren()
+            gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur bearbeitung an figur geben
+            neuesZielFeld.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID)
 
         }
         BildAusgabe()
-        return
+        return true
     }
 
     fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben

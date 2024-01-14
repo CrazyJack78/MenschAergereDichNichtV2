@@ -81,7 +81,7 @@ fun ersterAufbau(){
 
 fun lauffelderaufbau(){
     // Lauffelder
-    var laufFeldCounter = 0
+    var laufFeldCounter = -1
     var xMitte = -1
     var yMitte = -1
 

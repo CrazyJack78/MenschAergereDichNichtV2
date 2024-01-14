@@ -1,4 +1,4 @@
-import com.sun.jdi.Field
+
 
 class StandfelderEinzeln(typ:String,feldZaehler:Int) {
 
@@ -15,7 +15,7 @@ class StandfelderEinzeln(typ:String,feldZaehler:Int) {
     var playerOnField = false
     var playerID:Int = -1
         get() = field
-    var feldNummer = feldZaehler
+    var feldIdNummer = feldZaehler
 
     var figurIdOnField = ""
 
@@ -42,19 +42,22 @@ class StandfelderEinzeln(typ:String,feldZaehler:Int) {
     fun feldLeeren(){
         playerOnField = false
         playerID = -1
+        for (index in 1..6){
+            kleinesFeld[1][index] = " "
+        }
+        /*
         kleinesFeld.forEachIndexed{indexY,inhaltY ->
             inhaltY.forEachIndexed{indexX,inhaltX ->
-                if (indexY == 0 || indexY == 2){
+                kleinesFeld[indexY][indexX] //komplett leeren
+                if (indexY == 0 || indexY == 2){ // und neu schreiben wo gebraucht
                     kleinesFeld[indexY][indexX] = typ
                 }else{
                     kleinesFeld[1][0] = typ
-                    if (indexX in 1..6){
-                        kleinesFeld[1][indexX] = " "
-                    }
                     kleinesFeld[1][7] = typ
                 }
             }
         }
+        */
     }
 
     fun feldBesetzen(figurID:String,playerID:Int){
