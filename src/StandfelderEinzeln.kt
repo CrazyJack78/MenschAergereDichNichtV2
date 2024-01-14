@@ -1,20 +1,18 @@
 
 
-class StandfelderEinzeln(typ:String,feldZaehler:Int) {
+class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
 
     // erste Erstellung leer, dann auffüllen mit Inhalten
 
 
-    var kleinesFeld = MutableList(3){_->MutableList(8){(" ")} }
+    private var kleinesFeld = MutableList(3){ _->MutableList(8){(" ")} }
 
     // EinzelFeleigenschaften
-    val typ = typ
-        get() = field
+
 
     // Status des Feldes
     var playerOnField = false
     var playerID:Int = -1
-        get() = field
     var feldIdNummer = feldZaehler
 
     var figurIdOnField = ""
@@ -22,7 +20,7 @@ class StandfelderEinzeln(typ:String,feldZaehler:Int) {
 
     init { // Aussehen des Feldes
         kleinesFeld.forEachIndexed{indexY,inhaltY ->
-            inhaltY.forEachIndexed{indexX,inhaltX ->
+            inhaltY.forEachIndexed{ indexX, _ -> // unterstrich statt value-Name wenn der Wert nicht gebraucht wird
                 if (indexY == 0 || indexY == 2){
                     kleinesFeld[indexY][indexX] = typ
                 }else{
@@ -63,7 +61,7 @@ class StandfelderEinzeln(typ:String,feldZaehler:Int) {
     fun feldBesetzen(figurID:String,playerID:Int){
         feldLeeren()
         playerOnField = true                        // ein spielersteht auf
-        for (index in 0..figurID.length-1){
+        for (index in figurID.indices){ // rangeTo oder ..< können eine -1 ersetzen alt>>        for (index in 0..figurID.length-1)    <<<<<
             kleinesFeld[1][index+3] = figurID[index].toString()   // Spieler ID auf Feld schreiben (String Bereich)
         }
         this.playerID = playerID

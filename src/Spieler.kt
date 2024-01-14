@@ -1,11 +1,9 @@
 var spielerCounter = 0 // spielerID
-class Spieler(name:String) {
-    val name = name // SpielerName
+class Spieler(val name:String) {
     val spielerFiguren = mutableListOf<Spielfiguren>() // Liste mit Spielfiguren des Spielers
     val spielerID = spielerCounter
-    var warteFeldListePlayer = mutableListOf<StandfelderEinzeln>()
+    private var warteFeldListePlayer = mutableListOf<StandfelderEinzeln>()
     var startfeld = 0
-        get() = field
 
     init {
         for (i in 1..4){
@@ -28,8 +26,8 @@ class Spieler(name:String) {
 
     fun spielzug(){
         println(" Spieler $name, du bist am Zug, zum würfeln bitte >>Enter<< drücken")
-        val temp = readln()
-        val wurf = Wurf()
+        readln()
+        val wurf = wurf()
         println("Wurf>>> $wurf")
         var figurWait = 0
         spielerFiguren.forEach {
@@ -71,7 +69,7 @@ class Spieler(name:String) {
 
     }
 
-    fun figurAuswahl():Int{
+    private fun figurAuswahl():Int{
         while (true){
             try {
                 while (true){
@@ -89,7 +87,7 @@ class Spieler(name:String) {
         }
     }
 
-    fun warteFigurSetzen(gewaehlteFigur:Spielfiguren):Boolean{
+    private fun warteFigurSetzen(gewaehlteFigur:Spielfiguren):Boolean{
         gewaehlteFigur.figurFeld[0].feldLeeren()
         val zielFeld = laufFeldListe[startfeld]
         val zielLaufFeldNummer = zielFeld.feldIdNummer
@@ -110,17 +108,17 @@ class Spieler(name:String) {
 
 
 
-        BildAusgabe()
+        bildAusgabe()
         return true
     }
 
-    fun laufFigurSetzen(gewaehlteFigur: Spielfiguren,wurf:Int): Boolean{
-        var neuesZielFeldNummer = 0
+    private fun laufFigurSetzen(gewaehlteFigur: Spielfiguren, wurf:Int): Boolean{
+        var neuesZielFeldNummer: Int
         val standFeldFigur = gewaehlteFigur.figurFeld[0].feldIdNummer // LaufFeld auf dem die Figur gerade steht
         val altesFeld = gewaehlteFigur.figurFeld[0]
         neuesZielFeldNummer = standFeldFigur + wurf // die FeldId von derzeitigen Feld weiterzählen
         if (neuesZielFeldNummer-startfeld < 40){ // Überprüfen ob du schon eine Runde rum bist
-            neuesZielFeldNummer = neuesZielFeldNummer%40 // ab Feld 40 neu anfangen zu zählen
+            neuesZielFeldNummer %= 40 // ab Feld 40 neu anfangen zu zählen
             val neuesZielFeld = laufFeldListe[neuesZielFeldNummer]
             if (neuesZielFeld.playerOnField){ // steht schon ein spieler auf dem Feld
                 if (neuesZielFeld.playerID == spielerID){ // ist es der eigene?
@@ -134,11 +132,11 @@ class Spieler(name:String) {
             neuesZielFeld.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID)
 
         }
-        BildAusgabe()
+        bildAusgabe()
         return true
     }
 
-    fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben
+    private fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben
         // die Daten des Spielers, der auf dem Feld steht, lesen und nutzen
         playerInGame[laufFeld.playerID].warteFeldListePlayer.forEach{// bei entsprechenden Spieler die Wartefelder durchsehen
             if (!it.playerOnField){ // wenn eines frei ist,

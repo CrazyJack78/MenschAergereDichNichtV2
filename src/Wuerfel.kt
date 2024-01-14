@@ -1,4 +1,4 @@
-fun Wurf():Int{
+fun wurf():Int{
     return (1..6).random()
 }
 

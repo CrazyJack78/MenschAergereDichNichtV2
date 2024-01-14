@@ -1,4 +1,4 @@
-fun BildAusgabe(){
+fun bildAusgabe(){
 
     // Spielfeldausgabe Komplett
 
