@@ -1,5 +1,5 @@
 
-
+var waitcounter = 0
 class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
 
     // erste Erstellung leer, dann auffüllen mit Inhalten
@@ -19,17 +19,30 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
 
 
     init { // Aussehen des Feldes
-        kleinesFeld.forEachIndexed{indexY,inhaltY ->
-            inhaltY.forEachIndexed{ indexX, _ -> // unterstrich statt value-Name wenn der Wert nicht gebraucht wird
-                if (indexY == 0 || indexY == 2){
+        kleinesFeld.forEachIndexed { indexY, inhaltY ->
+            inhaltY.forEachIndexed { indexX, _ -> // unterstrich statt value-Name wenn der Wert nicht gebraucht wird
+                if (indexY == 0 || indexY == 2) {
                     kleinesFeld[indexY][indexX] = typ
-                }else{
+                } else {
                     kleinesFeld[1][0] = typ
                     kleinesFeld[1][7] = typ
-                    }
                 }
             }
+            if (typ == "L"){
+                if (feldIdNummer.toString().length == 2) {
+                    kleinesFeld[1][0] = feldIdNummer.toString()[0].toString()
+                    kleinesFeld[1][1] = feldIdNummer.toString()[1].toString()
+                } else {
+                    kleinesFeld[1][0] = feldIdNummer.toString()
+                }
+            }
+            if (typ == "W") {
+                kleinesFeld[0][0] = waitcounter.toString()
+            }
         }
+
+
+    }
 
     fun zeilenAusgabeYKlein(yKLein:Int){
         kleinesFeld[yKLein].forEach{x->
@@ -40,22 +53,9 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
     fun feldLeeren(){
         playerOnField = false
         playerID = -1
-        for (index in 1..6){
-            kleinesFeld[1][index] = " "
+        for (index in 2..5){
+            kleinesFeld[1][index] = " " // SpielerId von Feld löschen
         }
-        /*
-        kleinesFeld.forEachIndexed{indexY,inhaltY ->
-            inhaltY.forEachIndexed{indexX,inhaltX ->
-                kleinesFeld[indexY][indexX] //komplett leeren
-                if (indexY == 0 || indexY == 2){ // und neu schreiben wo gebraucht
-                    kleinesFeld[indexY][indexX] = typ
-                }else{
-                    kleinesFeld[1][0] = typ
-                    kleinesFeld[1][7] = typ
-                }
-            }
-        }
-        */
     }
 
     fun feldBesetzen(figurID:String,playerID:Int){

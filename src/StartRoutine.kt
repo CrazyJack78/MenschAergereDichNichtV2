@@ -1,6 +1,10 @@
 fun startRoutine(){
     spielerAbfrage()
 
+    playerInGame.forEachIndexed{index,player->
+        println("name player $index in game ${player.name}")
+    }
+
     ersterAufbau()
 
     startBrettAufbau()
@@ -35,7 +39,7 @@ fun spielerAbfrage(){
     playerInGame = Array(anzahlSpieler){// Array mit spielenden Spielern wird erstellt
         Spieler(spielerNamen()) // SpielerKlassen mit Name werden erstellt / mit jeder Erstellung wird der Counter für die Spielerzahl und ID erhöht
     }
-
+    /*
     playerInGame.forEachIndexed{indexPlayerID,player ->
         println("Spieler ${indexPlayerID+1}: ${player.name}")
         println("Die Namen der Figuren dieses Spielers sind:")
@@ -44,11 +48,13 @@ fun spielerAbfrage(){
         }
         println()
     }
-    println("Anzahl der Spieler im Spiel $spielerCounter")
+
+     */
+    println("Anzahl der Spieler im Spiel ${spielerCounter + 1}")
 }
 
 fun spielerNamen():String{
-    println("Welchen Namen hat Spieler ${spielerCounter+1}") // Zuteilung des Namen an entsprechende Id
+    println("Welchen Namen hat Spieler ${spielerCounter+2}") // Zuteilung des Namen an entsprechende Id
     while (true){ // Überprüfung das der Name wenigstens ein Zeichen lang ist
         val name = readln()
         if (name.isEmpty()){ // alt>>   name.length == 0
@@ -60,13 +66,25 @@ fun spielerNamen():String{
 }
 
 fun startBrettAufbau(){
+    playerInGame.forEachIndexed{spielerIndex,spieler->
+
+        warteFeldListe[spielerIndex].forEachIndexed{fieldIndex,field -> // Aufruf der Wartefeldliste in der die 4 Spieler gespeichert sind
+            field.feldBesetzen(spieler.spielerFiguren[fieldIndex].figurZeichen,spieler.spielerID) // Aufruf der Figurenliste des jeweiligen Spielers um das Figurenzeichen seiner Figuren zu lesen
+            // funktion besetzen aufrufen, des ausgewählten Feldes, um die Felder zu besetzen und das vorher gefundene Zeichen darauf zu schreiben
+
+        }
+        spieler.playerFeldListenFuellen()
+    }
+    /*
     for (spielerID in 0..spielerCounter){
         warteFeldListe[spielerID].forEachIndexed{fieldIndex,field -> // Aufruf der Wartefeldliste in der die 4 Spieler gespeichert sind
             field.feldBesetzen(playerInGame[spielerID].spielerFiguren[fieldIndex].figurZeichen,playerInGame[spielerID].spielerID) // Aufruf der Figurenliste des jeweiligen Spielers um das Figurenzeichen seiner Figuren zu lesen
             // funktion besetzen aufrufen, des ausgewählten Feldes, um die Felder zu besetzen und das vorher gefundene Zeichen darauf zu schreiben
         }
-        playerInGame[spielerID].warteFeldListeFuellen()
+        playerInGame[spielerID].playerFeldListenFuellen()
     }
+
+     */
 }
 
 // Ende

@@ -9,11 +9,12 @@ class Spielfiguren(spielerZeichen:String, val figurNummer:Int) {
 
     var feldNummer = 0
 
-    var figurFeld = MutableList(1){StandfelderEinzeln("",0)} // Feld zum bearbeiten beim verlassen verlinken
+    var figurFeldSpeicher = MutableList(1){StandfelderEinzeln("",0)} // Feld zum bearbeiten beim verlassen verlinken
 
     fun feldToFigur(feld:StandfelderEinzeln){
-        figurFeld[0] = feld // neues Feld verlinken
+        figurFeldSpeicher[0] = feld // neues Feld verlinken
         feldNummer = feld.feldIdNummer
+        println("neue $feldNummer")
     }
 
 }

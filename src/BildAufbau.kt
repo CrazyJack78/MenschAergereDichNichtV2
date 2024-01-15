@@ -12,6 +12,6 @@ fun bildAusgabe(){
         }
     }
 
-    println("Ende Ausdruck") // nach abschluss noch eine Zeile weiter gehen / Zeile beenden
+    //println("Ende Ausdruck") // nach abschluss noch eine Zeile weiter gehen / Zeile beenden
 
 }

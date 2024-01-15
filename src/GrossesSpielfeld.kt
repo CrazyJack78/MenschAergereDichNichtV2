@@ -5,62 +5,6 @@ lateinit var laufFeldListe:MutableList<StandfelderEinzeln>
 lateinit var warteFeldListe:MutableList<MutableList<StandfelderEinzeln>>
 lateinit var zielFeldListe:MutableList<MutableList<StandfelderEinzeln>>
 
-// Spieler - Feld Zuweisung
-var playerOne =     0
-var playerTwo =     0
-var playerThree =   0
-var playerFour =    0
-
-
-fun playerZuteilung(){
-    when (spielerCounter) {
-        1 -> {
-            playerOne =     0
-            playerInGame[0].startfeld = 30
-            playerTwo =     2
-            playerInGame[1].startfeld = 10
-            playerThree =   3
-            playerFour =    1
-        }
-        2 -> {
-            when((0..1).random()){
-                0 -> {
-                    playerOne =     0
-                    playerInGame[0].startfeld = 30
-                    playerTwo =     1
-                    playerInGame[1].startfeld = 0
-                    playerThree =   2
-                    playerInGame[2].startfeld = 10
-                    playerFour =    3
-                }
-
-                else -> {
-                    playerOne =     0
-                    playerInGame[0].startfeld = 30
-                    playerTwo =     3
-                    playerInGame[1].startfeld = 20
-                    playerThree =   2
-                    playerInGame[2].startfeld = 10
-                    playerFour =    1
-                }
-            }
-        }
-        else -> {
-            playerOne =     0
-            playerInGame[0].startfeld = 30
-            playerTwo =     1
-            playerInGame[1].startfeld = 0
-            playerThree =   2
-            playerInGame[2].startfeld = 10
-            playerFour =    3
-            playerInGame[3].startfeld = 20
-        }
-    }
-
-
-
-}
-
 
 
 fun ersterAufbau(){
@@ -76,13 +20,15 @@ fun ersterAufbau(){
     zielFeldListe = MutableList(4){MutableList(0){StandfelderEinzeln("",0)}}
 
     // Anlegen der einzelnen FeldTypen
-    playerZuteilung()
+    //playerZuteilung()
 
     lauffelderaufbau()
     wartefelderAufbau()
     zielFelderAufbau()
 
 }
+
+
 
 fun lauffelderaufbau(){
     // Lauffelder
@@ -164,23 +110,27 @@ fun lauffelderaufbau(){
 
 fun wartefelderAufbau(){
     // Wartefelder Optik Klasse
+    waitcounter++
 
-    var feldNummer = 0
+    var feldNummer = -1
     //links oben
     for (y in 0..2){
         for (x in 0..2){
             if (y != 1 && x != 1){
                 feldNummer++
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
-                grossesFeld[y][x].playerOnField = true
-                warteFeldListe[playerOne].add(grossesFeld[y][x])
-
+                if (playerInGame.size >= 3) {
+                    grossesFeld[y][x].playerOnField = true
+                    warteFeldListe[2].add(grossesFeld[y][x]) // einspeichern der
+                    playerInGame[2].startfeld = 30
+                }
 
             }
         }
     }
-    feldNummer = 0 //Reset Feldnummer
-
+    feldNummer = -1 //Reset Feldnummer
+    waitcounter++
+    // OR
     //rechts oben
     for (y in 0..2){
         for (x in 8..10){
@@ -188,13 +138,13 @@ fun wartefelderAufbau(){
                 feldNummer++
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
                 grossesFeld[y][x].playerOnField = true
-                warteFeldListe[playerTwo].add(grossesFeld[y][x])
-
+                warteFeldListe[0].add(grossesFeld[y][x])
+                playerInGame[0].startfeld = 0
             }
         }
     }
-    feldNummer = 0 //Reset Feldnummer
-
+    feldNummer = -1 //Reset Feldnummer
+    waitcounter++
     //links unten
     for (y in 8..10){
         for (x in 0..2){
@@ -202,22 +152,25 @@ fun wartefelderAufbau(){
                 feldNummer++
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
                 grossesFeld[y][x].playerOnField = true
-                warteFeldListe[playerThree].add(grossesFeld[y][x])
+                warteFeldListe[1].add(grossesFeld[y][x])
+                playerInGame[1].startfeld = 20
 
             }
         }
     }
-    feldNummer = 0 //Reset Feldnummer
-
+    feldNummer = -1 //Reset Feldnummer
+    waitcounter++
     //rechts unten
     for (y in 8..10){
         for (x in 8..10){
             if (y != 9 && x != 9){
                 feldNummer++
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
-                grossesFeld[y][x].playerOnField = true
-                warteFeldListe[playerFour].add(grossesFeld[y][x])
-
+                if (playerInGame.size == 4) {
+                    grossesFeld[y][x].playerOnField = true
+                    warteFeldListe[3].add(grossesFeld[y][x])
+                    playerInGame[3].startfeld = 10
+                }
             }
         }
     }
@@ -225,44 +178,40 @@ fun wartefelderAufbau(){
 
 fun zielFelderAufbau(){
     // ZielEinlaufFelder
-    var feldNummer = 0 // Feldnummerierer
+    var feldNummer = -1 // Feldnummerierer
 
     // Zielfelder von rechts oben
     for (y in 1..4){
         val x = 5
         feldNummer++
         grossesFeld[y][x] =  StandfelderEinzeln("Z",feldNummer)
-        //playerGoalRO.add(grossesFeld[y][x])
-        zielFeldListe[playerOne].add(grossesFeld[y][x])
+        zielFeldListe[2].add(grossesFeld[y][x])
     }
-    feldNummer = 0 // Nummer Neustart
+    feldNummer = -1 // Nummer Neustart
 
     // Zielfelder von rechts unten
     for (x in 9 downTo 6){
         val y = 5
         feldNummer++
         grossesFeld[y][x] = StandfelderEinzeln("Z",feldNummer)
-        //playerGoalRU.add(grossesFeld[y][x])
-        zielFeldListe[playerTwo].add(grossesFeld[y][x])
+        zielFeldListe[0].add(grossesFeld[y][x])
     }
-    feldNummer = 0
+    feldNummer = -1
 
     // Zielfelder von links unten
     for (y in 9 downTo 6){
         val x = 5
         feldNummer++
         grossesFeld[y][x] = StandfelderEinzeln("Z",feldNummer)
-        //playerGoalLU.add(grossesFeld[y][x])
-        zielFeldListe[playerTwo].add(grossesFeld[y][x])
+        zielFeldListe[1].add(grossesFeld[y][x])
     }
-    feldNummer = 0
+    feldNummer = -1
 
     // Zielfelder von links oben
     for (x in 1..4){
         val y = 5
         feldNummer++
         grossesFeld[y][x] = StandfelderEinzeln("Z",feldNummer)
-        //playerGoalLO.add(grossesFeld[y][x])
-        zielFeldListe[playerFour].add(grossesFeld[y][x])
+        zielFeldListe[3].add(grossesFeld[y][x])
     }
 }
