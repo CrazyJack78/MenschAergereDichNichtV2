@@ -73,7 +73,13 @@ class Spieler(val name:String) {
 
             if (gewaehlteFigur.figurWait){
                 if (wurf == 6){
-                    if (warteFigurSetzen(gewaehlteFigur)) return // funktion zu setzen aufrufen und ob gesetzt wurde zurückgeben
+                    if (warteFigurSetzen(gewaehlteFigur)) {
+                        if (wurf == 6) {
+                            println("Spieler ${this.name} du darfst noch einmal würfeln")
+                            spielzug()
+                        }
+                        return
+                    } // funktion zu setzen aufrufen und ob gesetzt wurde zurückgeben
                 }else {
                     println("Diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
                     // zurück zum while begin
@@ -88,6 +94,10 @@ class Spieler(val name:String) {
                  */
             }else if (gewaehlteFigur.figurLaeuft){
                 if (laufFigurSetzen(gewaehlteFigur,wurf)) {
+                    if (wurf == 6) {
+                        println("Spieler ${this.name} du darfst noch einmal würfeln")
+                        spielzug()
+                    }
                     return
                 } // funktion zum Setzen aufrufen und ob gestzt wurde zurückgeben
             }
