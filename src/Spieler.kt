@@ -74,11 +74,8 @@ class Spieler(val name:String) {
             if (gewaehlteFigur.figurWait){
                 if (wurf == 6){
                     if (warteFigurSetzen(gewaehlteFigur)) {
-                        if (wurf == 6) {
-                            println("Spieler ${this.name} du darfst noch einmal würfeln")
-                            spielzug()
-                        }
-                        return
+                        println("Spieler ${this.name} du darfst noch einmal würfeln")
+                        spielzug()
                     } // funktion zu setzen aufrufen und ob gesetzt wurde zurückgeben
                 }else {
                     println("Diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
