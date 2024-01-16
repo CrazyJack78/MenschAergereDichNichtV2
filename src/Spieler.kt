@@ -160,7 +160,7 @@ class Spieler(val name:String) {
         val altesFeldIndexOnPlayer = gewaehlteFigur.figurPositionAufLaufweg // gespeicherte position der figur
         val neuesZielFeldIndexOnPlayer = altesFeldIndexOnPlayer + wurf // ab hier größer 39 möglich (felder 0 - 39  zusammen 40 stück)
         val neuesZielFeld = laufFeldListePlayer[neuesZielFeldIndexOnPlayer] // das neue Zielfeld aus der Liste des Spielers entnehmen
-        if (neuesZielFeldIndexOnPlayer > 43) { // sollte das Ziel rechnerisch größer als 43 sein wird direkt abgewürgt TODO neu machen
+        if (neuesZielFeldIndexOnPlayer > 43) { // sollte das Ziel rechnerisch größer als 43 sein wird direkt abgewürgt
             println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
             return false
 
