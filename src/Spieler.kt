@@ -120,7 +120,7 @@ class Spieler(val name:String) {
         gewaehlteFigur.figurPositionInRunde = 0
         gewaehlteFigur.feldToFigur(zielFeld)
         //gewaehlteFigur.feldNummer = zielFeld.feldIdNummer // die figur bekommt die Id des neuen Feldes
-        zielFeld.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this) // Feld wird mit den Daten des Spielers geschrieben
+        zielFeld.feldBesetzen(gewaehlteFigur,this) // Feld wird mit den Daten des Spielers geschrieben
         // gewaehlteFigur.feldNummer = startfeld   // die Figur bekommt die Daten des Feldes geschrieben zum Abruf wo die Figur ist
 
         bildAusgabe()
@@ -133,17 +133,23 @@ class Spieler(val name:String) {
         // aus der identnummer des feldes kann man ableiten auf welchem Feld in der PlayerListe die Figur steht
          // Feld, auf das die Figur steht, zum Bearbeiten und Werte Lesen nutzen
         //var keineRundeRum = true
-        val altesFeldIndexOnPlayer = ((altesFeldIDNummer - startfeld)+40)%40 // wenn altesFeldNummer - startfeld kleiner ist als null, bringen wir sie ins Positive und falls sie dann größer ist als 40
-                                                                    // mit % auf Spielfeldlänge
+        //val altesFeldIndexOnPlayer = ((altesFeldIDNummer - startfeld)+40)%40 // wenn altesFeldNummer - startfeld kleiner ist als null, bringen wir sie ins Positive und falls sie dann größer ist als 40
+        // mit % auf Spielfeldlänge
+        val altesFeldIndexOnPlayer = gewaehlteFigur.figurPositionInRunde // gespeicherte position der figur
+
         val neuesZielFeldIndexOnPlayer = altesFeldIndexOnPlayer + wurf // ab hier größer 39 möglich (felder 0 - 39  zusammen 40 stück)
-        /*
+        if (neuesZielFeldIndexOnPlayer > 43) { // wenn du vor dem Ziel bist // TODO neu machen
+            println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
+            return false
+
+            /*
         var neuesZielFeldNummer = altesFeldNummer + wurf // die FeldId von derzeitigem Feld weiterzählen und wenn über 40 neu beginnen mit zählen
         if (neuesZielFeldNummer > 39){
             keineRundeRum = false
             neuesZielFeldNummer %= 40
         }
          */
-        if (neuesZielFeldIndexOnPlayer < 40){ // Überprüfen, ob du schon eine Runde rum bist und dein Zielfeld immer noch kleiner ist als dein Startfeld
+        }else if (neuesZielFeldIndexOnPlayer < 40){ // Überprüfen, ob du schon eine Runde rum bist und dein Zielfeld immer noch kleiner ist als dein Startfeld
             /* man könnte auch den Modulu direkt auf die rechnung anwenden
 
             man könnte aber auch eine Liste bauen die beim jeweiligen Spieler liegt so dass er immer bei feld null startet
@@ -166,8 +172,25 @@ class Spieler(val name:String) {
             // Status anpassen
             altesFeld.feldLeeren()
             gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur bearbeitung an figur geben
-            neuesZielFeld.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
-        }else { // wenn du eine Runde rum bist
+            neuesZielFeld.feldBesetzen(gewaehlteFigur,this)
+        }else{
+            when(neuesZielFeldIndexOnPlayer){
+                43 -> if (laufFeldListePlayer[43].playerOnField){
+                    println("Auf dem Zielplatz steht schon eine figur")
+                    return false
+                }else if (figurOnZielgeradeDavor(43)){
+                    println("Es stehen schon figuren Davor die du nicht übespringen kannst")
+                    return false
+                }
+
+            }
+
+
+
+        }
+
+            /*
+
             val wurfZuViel = neuesZielFeldIndexOnPlayer - 41
             if(wurfZuViel < 4){
                 // var restLaufWeg = (wurf - wurfZuViel) wohin im Zeillauf
@@ -177,7 +200,7 @@ class Spieler(val name:String) {
                         return false
                     }else if (feldIndex == wurfZuViel-1){ // erst und nur wenn der FeldIndex so hoch ist wie der Wurf wird die Figur hineingeschrieben
                         gewaehlteFigur.figurAufZielGerade = true
-                        feldInhalt.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
+                        feldInhalt.feldBesetzen(gewaehlteFigur,this)
                         for (i in feldIndex..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
                             if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
                                 gewaehlteFigur.figurImZiel = false
@@ -191,6 +214,7 @@ class Spieler(val name:String) {
                 println("Dein wurf ist zu hoch um in die Zielgeraden einzulaufen")
                 return false
             }
+            */
             /*
             val wurfZuViel = neuesZielFeldNummer - startfeld -1
             neuesZielFeldNummer -= - wurfZuViel
@@ -208,8 +232,9 @@ class Spieler(val name:String) {
             , bzw die Figur schon am Ende steht und im Ziel ist und dieses Feld schon belegt ist
 
              */
-        }
+
         //gewaehlteFigur.figurFeldSpeicher[0].feldLeeren()
+        gewaehlteFigur.figurPositionInRunde += wurf
         bildAusgabe()
         return true
     }
@@ -228,7 +253,7 @@ class Spieler(val name:String) {
                 return false
             }
         }
-        zielFeldListePlayer[neuesZieleinlaufFeldNummer].feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
+        zielFeldListePlayer[neuesZieleinlaufFeldNummer].feldBesetzen(gewaehlteFigur,this)
         for (i in neuesZieleinlaufFeldNummer..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
             if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
                 gewaehlteFigur.figurImZiel = false
@@ -239,6 +264,12 @@ class Spieler(val name:String) {
 
         bildAusgabe()
         return true
+    }
+    private fun figurOnZielgeradeDavor(zielFeld:Int):Boolean{
+        for (index in 40..<zielFeld){
+            if (laufFeldListePlayer[index].playerOnField) return true
+        }
+        return  false
     }
 
 
@@ -258,6 +289,7 @@ class Spieler(val name:String) {
         return wurf
     }
 
+
     private fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben
         // die Daten des Spielers, der auf dem Feld steht, lesen und nutzen
         val playerOnField = laufFeld.playerOnFieldList[0]//playerInGame[laufFeld.playerID]
@@ -265,7 +297,7 @@ class Spieler(val name:String) {
         playerInGame[laufFeld.playerID].warteFeldListePlayer.forEach{// bei entsprechenden Spieler die Wartefelder durchsehen
             if (!it.playerOnField){ // wenn eines frei ist,
                 playerInGame[laufFeld.playerID].spielerFiguren[laufFeld.figurIdOnField[1].code].feldToFigur(it)
-                it.feldBesetzen(figurOnField,laufFeld.figurIdOnField,laufFeld.playerID,playerOnField) // wird es mit der Figur beschrieben die auf dem Lauffeld steht
+                it.feldBesetzen(figurOnField,playerOnField) // wird es mit der Figur beschrieben die auf dem Lauffeld steht
                 /* TODO unnötiges raus nehmen, anpassen, im lauffeld sollte der Spieler und die figur schon direkt gespeichert sein
                 wodurch sich der code kürzen lässt
                 */

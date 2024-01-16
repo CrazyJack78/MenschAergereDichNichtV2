@@ -68,8 +68,10 @@ fun spielerNamen():String{
 fun startBrettAufbau(){
     playerInGame.forEachIndexed{spielerIndex,spieler->
 
+
         warteFeldListe[spielerIndex].forEachIndexed{fieldIndex,field -> // Aufruf der Wartefeldliste in der die 4 Spieler gespeichert sind
-            field.feldBesetzen(spieler.spielerFiguren[fieldIndex].figurZeichen,spieler.spielerID) // Aufruf der Figurenliste des jeweiligen Spielers um das Figurenzeichen seiner Figuren zu lesen
+            val figur = spieler.spielerFiguren[fieldIndex]
+            field.feldBesetzen(figur,spieler) // Aufruf der Figurenliste des jeweiligen Spielers um das Figurenzeichen seiner Figuren zu lesen
             // funktion besetzen aufrufen, des ausgewählten Feldes, um die Felder zu besetzen und das vorher gefundene Zeichen darauf zu schreiben
 
         }
