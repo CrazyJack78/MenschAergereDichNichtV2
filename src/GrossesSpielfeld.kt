@@ -122,7 +122,7 @@ fun wartefelderAufbau(){
                 if (playerInGame.size >= 3) {
                     grossesFeld[y][x].playerOnField = true
                     warteFeldListe[2].add(grossesFeld[y][x]) // einspeichern der
-                    playerInGame[2].startfeld = 30
+                    //playerInGame[2].startfeld = 30
                 }
 
             }
@@ -139,7 +139,7 @@ fun wartefelderAufbau(){
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
                 grossesFeld[y][x].playerOnField = true
                 warteFeldListe[0].add(grossesFeld[y][x])
-                playerInGame[0].startfeld = 0
+                //playerInGame[0].startfeld = 0
             }
         }
     }
@@ -153,7 +153,7 @@ fun wartefelderAufbau(){
                 grossesFeld[y][x] = StandfelderEinzeln("W",feldNummer)
                 grossesFeld[y][x].playerOnField = true
                 warteFeldListe[1].add(grossesFeld[y][x])
-                playerInGame[1].startfeld = 20
+                //playerInGame[1].startfeld = 20
 
             }
         }
@@ -169,7 +169,7 @@ fun wartefelderAufbau(){
                 if (playerInGame.size == 4) {
                     grossesFeld[y][x].playerOnField = true
                     warteFeldListe[3].add(grossesFeld[y][x])
-                    playerInGame[3].startfeld = 10
+                    //playerInGame[3].startfeld = 10
                 }
             }
         }

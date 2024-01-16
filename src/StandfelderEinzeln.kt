@@ -14,8 +14,17 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
     var playerOnField = false
     var playerID:Int = -1
     var feldIdNummer = feldZaehler
-
+    var figurNummerFromPlayerlist = 0
     var figurIdOnField = ""
+    // figur klasse auf dem feld
+    // spieler klasse auf dem feld
+    /* den kompletten spieler auf das feld bringen zur besseren werte abfrage
+    vielleicht auch/oder nur die figur
+
+    in einer liste mit löschbarem inhalt damit das feld auch wieder verlassen werden kann
+     */
+    var figurOnFieldList = mutableListOf<Spielfiguren>()
+    var playerOnFieldList = mutableListOf<Spieler>()
 
 
     init { // Aussehen des Feldes
@@ -53,12 +62,14 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
     fun feldLeeren(){
         playerOnField = false
         playerID = -1
+        if (playerOnFieldList.size > 0) playerOnFieldList.removeAt(0)
+        if (figurNummerFromPlayerlist > 0) figurOnFieldList.removeAt(0) // TODO beide werte noch schreiben
         for (index in 2..5){
             kleinesFeld[1][index] = " " // SpielerId von Feld löschen
         }
     }
 
-    fun feldBesetzen(figurID:String,playerID:Int){
+    fun feldBesetzen(figur:Spielfiguren,figurID:String,playerID:Int,player:Spieler){
         feldLeeren()
         playerOnField = true                        // ein spielersteht auf
         for (index in figurID.indices){ // rangeTo oder ..< können eine -1 ersetzen alt>>        for (index in 0..figurID.length-1)    <<<<<
@@ -66,6 +77,10 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
         }
         this.playerID = playerID
         figurIdOnField = figurID
+        figurNummerFromPlayerlist = figur.figurNummer
+        figurOnFieldList.add(figur)
+        playerOnFieldList.add(player)
+
     }
 
 

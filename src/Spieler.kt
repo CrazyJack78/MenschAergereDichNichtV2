@@ -15,8 +15,14 @@ class Spieler(val name:String) {
         }
         spielerID = spielerCounter
 
+        when(spielerCounter){
+            0 -> {startfeld = 0}
+            1 -> {startfeld = 20}
+            2 -> {startfeld = 30}
+            3 -> {startfeld = 10}
 
 
+        }
     }
 
     fun playerFeldListenFuellen(){ // Liste für Wartefelder beim Spieler
@@ -48,7 +54,7 @@ class Spieler(val name:String) {
         val wurf = wuerfeln()
         if (wurf == 6) println("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
         else {
-            if (allFigurWait()) {
+            if (allFigurWaitOrInGoal()) {
                 println("Leider warten alle deine Figuren auf's einsetzen und dies kannst du nur mit einer 6\n der nächste Spieler ist dran")
                 bildAusgabe()
                 return
@@ -111,9 +117,10 @@ class Spieler(val name:String) {
         // Status Figur anpassen
         gewaehlteFigur.figurWait = false // Warten Status wird gelöscht
         gewaehlteFigur.figurLaeuft = true // Laufen Status wird gesetzt
+        gewaehlteFigur.figurPositionInRunde = 0
         gewaehlteFigur.feldToFigur(zielFeld)
         //gewaehlteFigur.feldNummer = zielFeld.feldIdNummer // die figur bekommt die Id des neuen Feldes
-        zielFeld.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID) // Feld wird mit den Daten des Spielers geschrieben
+        zielFeld.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this) // Feld wird mit den Daten des Spielers geschrieben
         // gewaehlteFigur.feldNummer = startfeld   // die Figur bekommt die Daten des Feldes geschrieben zum Abruf wo die Figur ist
 
         bildAusgabe()
@@ -159,7 +166,7 @@ class Spieler(val name:String) {
             // Status anpassen
             altesFeld.feldLeeren()
             gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur bearbeitung an figur geben
-            neuesZielFeld.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID)
+            neuesZielFeld.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
         }else { // wenn du eine Runde rum bist
             val wurfZuViel = neuesZielFeldIndexOnPlayer - 41
             if(wurfZuViel < 4){
@@ -170,7 +177,7 @@ class Spieler(val name:String) {
                         return false
                     }else if (feldIndex == wurfZuViel-1){ // erst und nur wenn der FeldIndex so hoch ist wie der Wurf wird die Figur hineingeschrieben
                         gewaehlteFigur.figurAufZielGerade = true
-                        feldInhalt.feldBesetzen(gewaehlteFigur.figurZeichen,spielerID)
+                        feldInhalt.feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
                         for (i in feldIndex..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
                             if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
                                 gewaehlteFigur.figurImZiel = false
@@ -221,7 +228,7 @@ class Spieler(val name:String) {
                 return false
             }
         }
-        zielFeldListePlayer[neuesZieleinlaufFeldNummer].feldBesetzen(gewaehlteFigur.figurZeichen,spielerID)
+        zielFeldListePlayer[neuesZieleinlaufFeldNummer].feldBesetzen(gewaehlteFigur,gewaehlteFigur.figurZeichen,spielerID,this)
         for (i in neuesZieleinlaufFeldNummer..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
             if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
                 gewaehlteFigur.figurImZiel = false
@@ -235,10 +242,10 @@ class Spieler(val name:String) {
     }
 
 
-    private fun allFigurWait():Boolean{
+    private fun allFigurWaitOrInGoal():Boolean{
         var figurWait = 0
         spielerFiguren.forEach {
-            if (it.figurWait) figurWait++
+            if (it.figurWait || it.figurImZiel) figurWait++
         }
         return figurWait == 4
     }
@@ -253,9 +260,15 @@ class Spieler(val name:String) {
 
     private fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben
         // die Daten des Spielers, der auf dem Feld steht, lesen und nutzen
+        val playerOnField = laufFeld.playerOnFieldList[0]//playerInGame[laufFeld.playerID]
+        val figurOnField = laufFeld.figurOnFieldList[0]//playerInGame[laufFeld.playerID].spielerFiguren[laufFeld.figurNummerFromPlayerlist] // die nummer der figur des spielers auf dem feld
         playerInGame[laufFeld.playerID].warteFeldListePlayer.forEach{// bei entsprechenden Spieler die Wartefelder durchsehen
             if (!it.playerOnField){ // wenn eines frei ist,
-                it.feldBesetzen(laufFeld.figurIdOnField,laufFeld.playerID) // wird es mit der Figur beschrieben die auf dem Lauffeld steht
+                playerInGame[laufFeld.playerID].spielerFiguren[laufFeld.figurIdOnField[1].code].feldToFigur(it)
+                it.feldBesetzen(figurOnField,laufFeld.figurIdOnField,laufFeld.playerID,playerOnField) // wird es mit der Figur beschrieben die auf dem Lauffeld steht
+                /* TODO unnötiges raus nehmen, anpassen, im lauffeld sollte der Spieler und die figur schon direkt gespeichert sein
+                wodurch sich der code kürzen lässt
+                */
                 return
             }
         }
