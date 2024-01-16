@@ -63,8 +63,8 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
     fun feldLeeren(){
         playerOnField = false
         playerID = -1
-        if (playerOnFieldList.size > 0) playerOnFieldList.removeAt(0)
-        if (figurNummerFromPlayerlist > 0) figurOnFieldList.removeAt(0) // TODO beide werte noch schreiben
+        if (playerOnFieldList.size > 0) playerOnFieldList.clear()
+        if (figurNummerFromPlayerlist > 0) figurOnFieldList.clear() // TODO beide werte noch schreiben
         for (index in 2..5){
             kleinesFeld[1][index] = " " // SpielerId von Feld löschen
         }
@@ -81,7 +81,7 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
         figurNummerFromPlayerlist = figur.figurNummer
         figurOnFieldList.add(figur)
         playerOnFieldList.add(player)
-        //spielerWerte[0].add(player)
+
 
     }
 

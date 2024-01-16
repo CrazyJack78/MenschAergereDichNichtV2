@@ -1,3 +1,5 @@
+import kotlin.system.exitProcess
+
 var spielerCounter = -1 // spielerID
 class Spieler(val name:String) {
     val spielerFiguren = mutableListOf<Spielfiguren>() // Liste mit Spielfiguren des Spielers
@@ -6,7 +8,7 @@ class Spieler(val name:String) {
     private var zielFeldListePlayer = mutableListOf<StandfelderEinzeln>()
     private var laufFeldListePlayer = mutableListOf<StandfelderEinzeln>()
 
-    var startfeld = 0 // pre wird noch überschrieben von den Wartefeldern
+    private var startfeld = 0 // pre wird noch überschrieben von den Wartefeldern
 
     init {
         spielerCounter++
@@ -52,8 +54,12 @@ class Spieler(val name:String) {
 
     fun spielzug(){
         val wurf = wuerfeln()
-        if (wurf == 6) println("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
-        else {
+
+        if (wurf == 6) {
+            println("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
+
+        } else {
+
             if (allFigurWaitOrInGoal()) {
                 println("Leider warten alle deine Figuren auf's einsetzen und dies kannst du nur mit einer 6\n der nächste Spieler ist dran")
                 bildAusgabe()
@@ -74,14 +80,22 @@ class Spieler(val name:String) {
                 }
             }else if (gewaehlteFigur.figurImZiel) {
                 println("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
+                /*
             }else if (gewaehlteFigur.figurAufZielGerade){
                 // TODO auf zielgerade kann nicht übersprungen werden Überprüfung
                 if(aufZielGeradeSetzen(gewaehlteFigur,wurf)) return
+
+                 */
             }else if (gewaehlteFigur.figurLaeuft){
-                if (laufFigurSetzen(gewaehlteFigur,wurf)) return // funktion zum Setzen aufrufen und ob gestzt wurde zurückgeben
+                if (laufFigurSetzen(gewaehlteFigur,wurf)) {
+                    return
+                } // funktion zum Setzen aufrufen und ob gestzt wurde zurückgeben
             }
             // wenn die Funktionen kein True zurückgeben muss man eine neue Figur wählen da es aus einem bestimmten grund nicht ging
+            gewonnen()
         }
+
+
     }
 
     private fun figurAuswahl():Int{
@@ -117,7 +131,7 @@ class Spieler(val name:String) {
         // Status Figur anpassen
         gewaehlteFigur.figurWait = false // Warten Status wird gelöscht
         gewaehlteFigur.figurLaeuft = true // Laufen Status wird gesetzt
-        gewaehlteFigur.figurPositionInRunde = 0
+        gewaehlteFigur.figurPositionAufLaufweg = 0
         gewaehlteFigur.feldToFigur(zielFeld)
         //gewaehlteFigur.feldNummer = zielFeld.feldIdNummer // die figur bekommt die Id des neuen Feldes
         zielFeld.feldBesetzen(gewaehlteFigur,this) // Feld wird mit den Daten des Spielers geschrieben
@@ -129,16 +143,17 @@ class Spieler(val name:String) {
 
     private fun laufFigurSetzen(gewaehlteFigur: Spielfiguren, wurf:Int): Boolean{
         val altesFeld = gewaehlteFigur.figurFeldSpeicher[0]
-        val altesFeldIDNummer = altesFeld.feldIdNummer // LaufFeld auf dem die Figur gerade steht
-        // aus der identnummer des feldes kann man ableiten auf welchem Feld in der PlayerListe die Figur steht
-         // Feld, auf das die Figur steht, zum Bearbeiten und Werte Lesen nutzen
-        //var keineRundeRum = true
-        //val altesFeldIndexOnPlayer = ((altesFeldIDNummer - startfeld)+40)%40 // wenn altesFeldNummer - startfeld kleiner ist als null, bringen wir sie ins Positive und falls sie dann größer ist als 40
-        // mit % auf Spielfeldlänge
-        val altesFeldIndexOnPlayer = gewaehlteFigur.figurPositionInRunde // gespeicherte position der figur
-
+        /*val altesFeldIDNummer = altesFeld.feldIdNummer // LaufFeld auf dem die Figur gerade steht
+         aus der identnummer des feldes kann man ableiten auf welchem Feld in der PlayerListe die Figur steht
+         Feld, auf das die Figur steht, zum Bearbeiten und Werte Lesen nutzen
+        var keineRundeRum = true
+        val altesFeldIndexOnPlayer = ((altesFeldIDNummer - startfeld)+40)%40 // wenn altesFeldNummer - startfeld kleiner ist als null, bringen wir sie ins Positive und falls sie dann größer ist als 40
+         mit % auf Spielfeldlänge
+         */
+        val altesFeldIndexOnPlayer = gewaehlteFigur.figurPositionAufLaufweg // gespeicherte position der figur
         val neuesZielFeldIndexOnPlayer = altesFeldIndexOnPlayer + wurf // ab hier größer 39 möglich (felder 0 - 39  zusammen 40 stück)
-        if (neuesZielFeldIndexOnPlayer > 43) { // wenn du vor dem Ziel bist // TODO neu machen
+        val neuesZielFeld = laufFeldListePlayer[neuesZielFeldIndexOnPlayer] // das neue Zielfeld aus der Liste des Spielers entnehmen
+        if (neuesZielFeldIndexOnPlayer > 43) { // sollte das Ziel rechnerisch größer als 43 sein wird direkt abgewürgt TODO neu machen
             println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
             return false
 
@@ -149,7 +164,7 @@ class Spieler(val name:String) {
             neuesZielFeldNummer %= 40
         }
          */
-        }else if (neuesZielFeldIndexOnPlayer < 40){ // Überprüfen, ob du schon eine Runde rum bist und dein Zielfeld immer noch kleiner ist als dein Startfeld
+        }else if (neuesZielFeldIndexOnPlayer < 40){ // Lauffelder sind kleiner 40 (0-39)
             /* man könnte auch den Modulu direkt auf die rechnung anwenden
 
             man könnte aber auch eine Liste bauen die beim jeweiligen Spieler liegt so dass er immer bei feld null startet
@@ -161,26 +176,29 @@ class Spieler(val name:String) {
             ab feld 40 müssen wir wieder neu zählen also modulu %40
              */
             // neuesZielFeldNummer %= 40 // ab Feld 40 neu anfangen zu zählen
-            val neuesZielFeld = laufFeldListePlayer[neuesZielFeldIndexOnPlayer] // das neue Zielfeld aus der Liste des Spielers entnehmen
             if (neuesZielFeld.playerOnField){ // steht schon ein spieler auf dem Feld
                 if (neuesZielFeld.playerID == spielerID){ // ist es der eigene?
                     println("Da steht schon eine Figur von Dir, wähle eine andere")
                     return false
-                }else rausWurf(neuesZielFeld) // fremder spieler
+                }else rausWurf(neuesZielFeld) // Gegner Spieler
             }
             // TODO was passiert wenn ich zum Zieleinlauf komme
             // Status anpassen
             altesFeld.feldLeeren()
-            gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur bearbeitung an figur geben
-            neuesZielFeld.feldBesetzen(gewaehlteFigur,this)
+            gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur verlinkung an figur geben
+            neuesZielFeld.feldBesetzen(gewaehlteFigur,this) // Aufruf der Funktion zum Besetzen des neuen Zielfeldes
         }else{
             when(neuesZielFeldIndexOnPlayer){
                 43 -> if (laufFeldListePlayer[43].playerOnField){
                     println("Auf dem Zielplatz steht schon eine figur")
-                    return false
-                }else if (figurOnZielgeradeDavor(43)){
-                    println("Es stehen schon figuren Davor die du nicht übespringen kannst")
-                    return false
+                    return false // die Figur wurde nicht gesetzt
+                }else if (figurOnZielgeradeDavor(neuesZielFeldIndexOnPlayer)){
+                    println("Es steht schon eine oder mehrere figuren davor die du nicht übespringen kannst")
+                    return false // die Figur wurde nicht gesetzt
+                }else { // setzen auf Zielfeld
+                    if (zielFeld(neuesZielFeldIndexOnPlayer))gewaehlteFigur.figurImZiel = true
+                    gewaehlteFigur.figurAufZielGerade = true
+
                 }
 
             }
@@ -234,11 +252,12 @@ class Spieler(val name:String) {
              */
 
         //gewaehlteFigur.figurFeldSpeicher[0].feldLeeren()
-        gewaehlteFigur.figurPositionInRunde += wurf
+        gewaehlteFigur.figurPositionAufLaufweg += wurf
         bildAusgabe()
         return true
     }
 
+    /*
     private fun aufZielGeradeSetzen(gewaehlteFigur: Spielfiguren, wurf:Int): Boolean{
         val altesZielLaufFeld = gewaehlteFigur.figurFeldSpeicher[0]
         val altesZieleinlaufFeldNummer = altesZielLaufFeld.feldIdNummer
@@ -265,6 +284,7 @@ class Spieler(val name:String) {
         bildAusgabe()
         return true
     }
+    */
     private fun figurOnZielgeradeDavor(zielFeld:Int):Boolean{
         for (index in 40..<zielFeld){
             if (laufFeldListePlayer[index].playerOnField) return true
@@ -272,6 +292,20 @@ class Spieler(val name:String) {
         return  false
     }
 
+    /*
+    fun nocheinmal(wurf:Int):Boolean{
+        if (wurf == 6) return false
+        return true
+    }
+
+     */
+
+    private fun zielFeld(zielFeld:Int):Boolean{ // wenn vom letzten Feld abwärts auf jedem Feld eine Figur steht soll true zurück gegeben werden
+        for (feld in 43 downTo zielFeld+1){
+            if (!laufFeldListePlayer[feld].playerOnField) return false // solte auf einem Feld keine Figur stehen kommt direkt false zurück
+        }
+        return true // sollten auf allen Feldern Figuren stehen läuft die If Abfrage durch und es kommt true zurück
+    }
 
     private fun allFigurWaitOrInGoal():Boolean{
         var figurWait = 0
@@ -289,7 +323,6 @@ class Spieler(val name:String) {
         return wurf
     }
 
-
     private fun rausWurf(laufFeld:StandfelderEinzeln){ // Das feld das besetzt werden soll übergeben
         // die Daten des Spielers, der auf dem Feld steht, lesen und nutzen
         val playerOnField = laufFeld.playerOnFieldList[0]//playerInGame[laufFeld.playerID]
@@ -304,5 +337,18 @@ class Spieler(val name:String) {
                 return
             }
         }
+    }
+
+    private fun gewonnen(){
+        this.spielerFiguren.forEach{
+            if (!it.figurImZiel) return
+        }
+        println("Tatatataraaaaaaa")
+        println("------------------")
+        print("<<<<<<<<<<>>>>>>>>>>")
+        print("Der Spieler ${this.name} hat gewonnen")
+        print("<<<<<<<<<<>>>>>>>>>>")
+        exitProcess(0)
+
     }
 }

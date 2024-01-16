@@ -6,7 +6,7 @@ class Spielfiguren(spielerZeichen:String, val figurNummer:Int) {
     var figurLaeuft = false
     var figurAufZielGerade = false
     var figurImZiel = false
-    var figurPositionInRunde = -1
+    var figurPositionAufLaufweg = -1
 
     var feldNummer = 0
 
@@ -15,7 +15,7 @@ class Spielfiguren(spielerZeichen:String, val figurNummer:Int) {
     fun feldToFigur(feld:StandfelderEinzeln){
         figurFeldSpeicher[0] = feld // neues Feld verlinken
         feldNummer = feld.feldIdNummer
-        println("neue $feldNummer")
+        //println("neue $feldNummer")
     }
 
 }
