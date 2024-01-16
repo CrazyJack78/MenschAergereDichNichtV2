@@ -83,12 +83,6 @@ class Spieler(val name:String) {
                 }
             }else if (gewaehlteFigur.figurImZiel) {
                 println("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
-                /*
-            }else if (gewaehlteFigur.figurAufZielGerade){
-                // TODO auf zielgerade kann nicht übersprungen werden Überprüfung
-                if(aufZielGeradeSetzen(gewaehlteFigur,wurf)) return
-
-                 */
             }else if (gewaehlteFigur.figurLaeuft){
                 if (laufFigurSetzen(gewaehlteFigur,wurf)) {
                     if (wurf == 6) {
@@ -162,7 +156,6 @@ class Spieler(val name:String) {
                     return false
                 }else rausWurf(neuesZielFeld) // Gegner Spieler
             }
-            // TODO was passiert wenn ich zum Zieleinlauf komme
             // Status anpassen
             altesFeld.feldLeeren()
             gewaehlteFigur.feldToFigur(neuesZielFeld) // Feld zur verlinkung an figur geben
@@ -229,9 +222,7 @@ class Spieler(val name:String) {
             if (!it.playerOnField){ // wenn eines frei ist,
                 playerInGame[laufFeld.playerID].spielerFiguren[laufFeld.figurIdOnField[1].code].feldToFigur(it)
                 it.feldBesetzen(figurOnField,playerOnField) // wird es mit der Figur beschrieben die auf dem Lauffeld steht
-                /* TODO unnötiges raus nehmen, anpassen, im lauffeld sollte der Spieler und die figur schon direkt gespeichert sein
-                wodurch sich der code kürzen lässt
-                */
+
                 return
             }
         }

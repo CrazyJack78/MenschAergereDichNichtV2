@@ -64,7 +64,7 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
         playerOnField = false
         playerID = -1
         if (playerOnFieldList.size > 0) playerOnFieldList.clear()
-        if (figurNummerFromPlayerlist > 0) figurOnFieldList.clear() // TODO beide werte noch schreiben
+        if (figurNummerFromPlayerlist > 0) figurOnFieldList.clear()
         for (index in 2..5){
             kleinesFeld[1][index] = " " // SpielerId von Feld löschen
         }

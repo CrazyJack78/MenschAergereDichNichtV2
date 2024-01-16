@@ -8,7 +8,7 @@ class Spielfiguren(spielerZeichen:String, val figurNummer:Int) {
     var figurImZiel = false
     var figurPositionAufLaufweg = -1
 
-    var feldNummer = 0
+    private var feldNummer = 0
 
     var figurFeldSpeicher = MutableList(1){StandfelderEinzeln("",0)} // Feld zum bearbeiten beim verlassen verlinken
 

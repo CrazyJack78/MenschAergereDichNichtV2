@@ -36,7 +36,6 @@ fun spielerAbfrage(){
                     "Bitte nur 2-4 Spieler eingeben")
         }
     }
-    //spielerzahl = anzahlSpieler // TODO noch frei geben
     println("Spielerzahl: $anzahlSpieler") // Ausgabe Anzahl Spieler
 
     playerInGame = Array(anzahlSpieler){// Array mit spielenden Spielern wird erstellt
