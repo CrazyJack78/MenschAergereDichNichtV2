@@ -1,3 +1,4 @@
+
 fun startRoutine(){
     spielerAbfrage()
 
@@ -22,15 +23,17 @@ fun spielerAbfrage(){
     println("Wieviele Spieler nehmen an dem Spiel teil? 2-4 Spieler")
     while (true){
         try {
-            while (true){
-                anzahlSpieler = readln().toInt()
-                if (anzahlSpieler < 2 || anzahlSpieler > 4){ // Die Überprüfung der Anzahl der Spieler könnte auch über eine eigene Exception passieren
-                    println("Diese Eingabe hatte zu viel oder zu wenig Spieler, bitte nur 2-4 ")
-                }else break // sollte die Anzahl der eingegebenen Spieler passen bricht die Schleife hier ab
-            }
+            anzahlSpieler = readln().toInt()
+            falscheZahlSpielerException(anzahlSpieler)
             break // sollte keine Exception geworfen worden sein bricht die Schleife hier ab
         }catch (e:NumberFormatException){
             println("Diese Eingabe war falsch, bitte nur eine Ziffer von 2 bis 4 eingeben")
+        }catch (e:AnzahlZuGeringException){
+            println("Du hast zu wenig Spieler angegeben\n" +
+                    "Bitte nur 2-4 Spieler eingeben")
+        }catch (e:AnzahlZuHochException){
+            println("Du hast zu viele Spieler angegeben\n" +
+                    "Bitte nur 2-4 Spieler eingeben")
         }
     }
     //spielerzahl = anzahlSpieler // TODO noch frei geben
@@ -39,17 +42,6 @@ fun spielerAbfrage(){
     playerInGame = Array(anzahlSpieler){// Array mit spielenden Spielern wird erstellt
         Spieler(spielerNamen()) // SpielerKlassen mit Name werden erstellt / mit jeder Erstellung wird der Counter für die Spielerzahl und ID erhöht
     }
-    /*
-    playerInGame.forEachIndexed{indexPlayerID,player ->
-        println("Spieler ${indexPlayerID+1}: ${player.name}")
-        println("Die Namen der Figuren dieses Spielers sind:")
-        player.spielerFiguren.forEach{figur -> // eindeutige Namen statt it sind eindeutiger
-            println("Das Name der FigurNr: ${figur.figurNummer} lautet: ${figur.figurZeichen}")
-        }
-        println()
-    }
-
-     */
     println("Anzahl der Spieler im Spiel ${spielerCounter + 1}")
 }
 
@@ -77,16 +69,6 @@ fun startBrettAufbau(){
         }
         spieler.playerFeldListenFuellen()
     }
-    /*
-    for (spielerID in 0..spielerCounter){
-        warteFeldListe[spielerID].forEachIndexed{fieldIndex,field -> // Aufruf der Wartefeldliste in der die 4 Spieler gespeichert sind
-            field.feldBesetzen(playerInGame[spielerID].spielerFiguren[fieldIndex].figurZeichen,playerInGame[spielerID].spielerID) // Aufruf der Figurenliste des jeweiligen Spielers um das Figurenzeichen seiner Figuren zu lesen
-            // funktion besetzen aufrufen, des ausgewählten Feldes, um die Felder zu besetzen und das vorher gefundene Zeichen darauf zu schreiben
-        }
-        playerInGame[spielerID].playerFeldListenFuellen()
-    }
-
-     */
 }
 
 // Ende

@@ -20,7 +20,7 @@ fun ersterAufbau(){
     zielFeldListe = MutableList(4){MutableList(0){StandfelderEinzeln("",0)}}
 
     // Anlegen der einzelnen FeldTypen
-    //playerZuteilung()
+
 
     lauffelderaufbau()
     wartefelderAufbau()

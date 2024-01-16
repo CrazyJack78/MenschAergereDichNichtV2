@@ -102,23 +102,19 @@ class Spieler(val name:String) {
             gewonnen()
         }
 
-
     }
 
     private fun figurAuswahl():Int{
         while (true){
             try {
-                while (true){
-                    val figur = readln().toInt()-1
-                    if (figur < 0 || figur > 3){
-                        println("Diese Figur hast du nicht, bitte noch einmal wählen, 1-4")
-                    }else {
-                        println("Du hast die ${figur + 1} gewählt")
-                        return figur
-                    }
-                }
+                val figur = readln().toInt()
+                falscheZahlFigurException(figur)
             }catch (e:NumberFormatException){
                 println("Keine gültige Zahl, bitte noch einmal wählen 1-4")
+            }catch (e:AnzahlZuGeringException){
+                println("Negative Figuren hast du nicht, bitte eine Zahl von 1 - 4 angeben")
+            }catch (e:AnzahlZuHochException){
+                println("Mehr als 4 figuren hast du nicht, bitte max eine 4 angeben")
             }
         }
     }
@@ -150,13 +146,6 @@ class Spieler(val name:String) {
 
     private fun laufFigurSetzen(gewaehlteFigur: Spielfiguren, wurf:Int): Boolean{
         val altesFeld = gewaehlteFigur.figurFeldSpeicher[0]
-        /*val altesFeldIDNummer = altesFeld.feldIdNummer // LaufFeld auf dem die Figur gerade steht
-         aus der identnummer des feldes kann man ableiten auf welchem Feld in der PlayerListe die Figur steht
-         Feld, auf das die Figur steht, zum Bearbeiten und Werte Lesen nutzen
-        var keineRundeRum = true
-        val altesFeldIndexOnPlayer = ((altesFeldIDNummer - startfeld)+40)%40 // wenn altesFeldNummer - startfeld kleiner ist als null, bringen wir sie ins Positive und falls sie dann größer ist als 40
-         mit % auf Spielfeldlänge
-         */
         val altesFeldIndexOnPlayer = gewaehlteFigur.figurPositionAufLaufweg // gespeicherte position der figur
         val neuesZielFeldIndexOnPlayer = altesFeldIndexOnPlayer + wurf // ab hier größer 39 möglich (felder 0 - 39  zusammen 40 stück)
         val neuesZielFeld = laufFeldListePlayer[neuesZielFeldIndexOnPlayer] // das neue Zielfeld aus der Liste des Spielers entnehmen
@@ -164,24 +153,8 @@ class Spieler(val name:String) {
             println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
             return false
 
-            /*
-        var neuesZielFeldNummer = altesFeldNummer + wurf // die FeldId von derzeitigem Feld weiterzählen und wenn über 40 neu beginnen mit zählen
-        if (neuesZielFeldNummer > 39){
-            keineRundeRum = false
-            neuesZielFeldNummer %= 40
-        }
-         */
         }else if (neuesZielFeldIndexOnPlayer < 40){ // Lauffelder sind kleiner 40 (0-39)
-            /* man könnte auch den Modulu direkt auf die rechnung anwenden
 
-            man könnte aber auch eine Liste bauen die beim jeweiligen Spieler liegt so dass er immer bei feld null startet
-
-             Man läuft los, und würde mit einer 5 von 38 auf 44 landen.
-            Der Modulu macht aus der 44 ein 4, danach muss ich überprüfen ob ich damit schon über mein Startfeld hinaus bin
-            ((altes Feld + wurf) % 40) < startfeld V1
-            oder neues feld 44 - start 10 < 40 = 34 True wir sind noch im lauf
-            ab feld 40 müssen wir wieder neu zählen also modulu %40
-             */
             // neuesZielFeldNummer %= 40 // ab Feld 40 neu anfangen zu zählen
             if (neuesZielFeld.playerOnField){ // steht schon ein spieler auf dem Feld
                 if (neuesZielFeld.playerID == spielerID){ // ist es der eigene?
@@ -213,99 +186,17 @@ class Spieler(val name:String) {
 
 
         }
-
-            /*
-
-            val wurfZuViel = neuesZielFeldIndexOnPlayer - 41
-            if(wurfZuViel < 4){
-                // var restLaufWeg = (wurf - wurfZuViel) wohin im Zeillauf
-                zielFeldListePlayer.forEachIndexed{feldIndex,feldInhalt ->
-                    if (feldInhalt.playerOnField && wurfZuViel > feldIndex){ // sollte der Restwurf größer dem Index sein, wo schon eine Figur steht, kannst du die Figur nicht dahin setzen bzw darüber
-                        println("Du kannst diese Figur nicht setzen da du schon eine Figur im Ziellauf hast die du nicht überspringen kannst bzw die schon im Ziel ist")
-                        return false
-                    }else if (feldIndex == wurfZuViel-1){ // erst und nur wenn der FeldIndex so hoch ist wie der Wurf wird die Figur hineingeschrieben
-                        gewaehlteFigur.figurAufZielGerade = true
-                        feldInhalt.feldBesetzen(gewaehlteFigur,this)
-                        for (i in feldIndex..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
-                            if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
-                                gewaehlteFigur.figurImZiel = false
-                                break // falls ein Platz, vor dem letzten nicht besetzt ist, muss die Schleife schon vorher abbrechen
-                            }else gewaehlteFigur.figurImZiel = true
-                        }
-                    }
-                }
-
-            }else {
-                println("Dein wurf ist zu hoch um in die Zielgeraden einzulaufen")
-                return false
-            }
-            */
-            /*
-            val wurfZuViel = neuesZielFeldNummer - startfeld -1
-            neuesZielFeldNummer -= - wurfZuViel
-            if (wurfZuViel < 4){
-
-            } else println("Dein wurf ist zu hoch um in die Zielgeraden einzulaufen")
-
-            zu viel = zielfeld - startfeld -1
-            neues zielfeld = altesZielfeld - zu viel
-            wurfrest = wurf - zu viel
-            mit dem rest zählen wir in der Zielgeraden hoch
-            rest darf max 4 sein
-            überprüfen ob schon eine figur in zielgerade steht
-            wenn eine figur auf der Zielgeraden steht überprüfen wo / wenn auf 2 darf der Restwurf höchstens 2 betragen da nicht übersprungn werden darf
-            , bzw die Figur schon am Ende steht und im Ziel ist und dieses Feld schon belegt ist
-
-             */
-
-        //gewaehlteFigur.figurFeldSpeicher[0].feldLeeren()
         gewaehlteFigur.figurPositionAufLaufweg += wurf
         bildAusgabe()
         return true
     }
 
-    /*
-    private fun aufZielGeradeSetzen(gewaehlteFigur: Spielfiguren, wurf:Int): Boolean{
-        val altesZielLaufFeld = gewaehlteFigur.figurFeldSpeicher[0]
-        val altesZieleinlaufFeldNummer = altesZielLaufFeld.feldIdNummer
-        val neuesZieleinlaufFeldNummer = altesZieleinlaufFeldNummer + wurf
-        if (zielFeldListePlayer[neuesZieleinlaufFeldNummer].playerOnField){ // ist schon eine deiner Figuren auf deem feld
-            println("Du kannst die Figur nicht bewegen, das Feld ist schon besetzt")
-            return false
-        }
-        for (i in 0..neuesZieleinlaufFeldNummer){
-            if (zielFeldListePlayer[i].playerOnField){
-                println("Du kannst im Ziellauf keine Figur überspringen") // würdest du eine deiner Figuren überspringen
-                return false
-            }
-        }
-        zielFeldListePlayer[neuesZieleinlaufFeldNummer].feldBesetzen(gewaehlteFigur,this)
-        for (i in neuesZieleinlaufFeldNummer..3){ // sollte nach dem gewählten Index alle felder playerOnField True sein wird die Figur als im Ziel gewertet
-            if (!zielFeldListePlayer[i].playerOnField){ // wenn ein Platz, nach dem Platz der Figur false ist, wird im Ziel false
-                gewaehlteFigur.figurImZiel = false
-                break // falls ein Platz, vor dem letzten nicht besetzt ist, muss die Schleife schon vorher abbrechen
-            }else gewaehlteFigur.figurImZiel = true
-        }
-
-
-        bildAusgabe()
-        return true
-    }
-    */
     private fun figurOnZielgeradeDavor(zielFeld:Int):Boolean{
         for (index in 40..<zielFeld){
             if (laufFeldListePlayer[index].playerOnField) return true
         }
         return  false
     }
-
-    /*
-    fun nocheinmal(wurf:Int):Boolean{
-        if (wurf == 6) return false
-        return true
-    }
-
-     */
 
     private fun zielFeld(zielFeld:Int):Boolean{ // wenn vom letzten Feld abwärts auf jedem Feld eine Figur steht soll true zurück gegeben werden
         for (feld in 43 downTo zielFeld+1){
