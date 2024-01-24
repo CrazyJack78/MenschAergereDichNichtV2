@@ -54,10 +54,13 @@ class StandfelderEinzeln(private val typ:String, feldZaehler:Int) {
 
     }
 
-    fun zeilenAusgabeYKlein(yKLein:Int){
-        kleinesFeld[yKLein].forEach{x->
-            print(x)
+    fun zeilenAusgabeYKlein(yKLein:Int):String{
+        var sign = ""
+        kleinesFeld[yKLein].forEach{x-> // Ausgabe ganze Zeile des kleinen Feldes 8 Zeichen
+            //print(x)
+             sign += x
         }
+        return sign
     }
 
     fun feldLeeren(){

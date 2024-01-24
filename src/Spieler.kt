@@ -8,7 +8,7 @@ class Spieler(val name:String) {
     private var zielFeldListePlayer = mutableListOf<StandfelderEinzeln>()
     private var laufFeldListePlayer = mutableListOf<StandfelderEinzeln>()
 
-    private var startfeld = 0 // pre wird noch überschrieben von den Wartefeldern
+    var startfeld = 0 // pre wird noch überschrieben von den Wartefeldern
 
     init {
         spielerCounter++
@@ -33,7 +33,7 @@ class Spieler(val name:String) {
             spielerFiguren[index].feldToFigur(field) // der Figur das Feld geben damt sie weiß wo sie steht und ihr eigenes Feld bearbeiten leeren kann, so ist es leichter zu finden
         }
 
-        println("player: $spielerID startfeld: $startfeld")
+        //println("player: $spielerID startfeld: $startfeld")
         for (i in startfeld..startfeld+40){
             /* start des speichers an der stelle des startfeldes bis startfeld + 40
             Beispiel   20 .. 60
@@ -46,7 +46,7 @@ class Spieler(val name:String) {
         zielFeldListe[spielerID].forEach { field -> // Liste mit eigenen Zielfeldern
             zielFeldListePlayer.add(field) // Liste der Zielfelder
             laufFeldListePlayer.add(field) // anhängen der Zielfelder an die Lauffelder
-            println("Zielfeldnummer = ${field.feldIdNummer}")
+            //println("Zielfeldnummer = ${field.feldIdNummer}")
         }
 
 
@@ -56,37 +56,52 @@ class Spieler(val name:String) {
         val wurf = wuerfeln()
 
         if (wurf == 6) {
-            println("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
-
+            //println("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
+            bildAnweisungen.add("Glückwunsch du hast eine 6 geworfen, du darfst nach deinem Zug noch einmal würfeln")
         } else {
 
             if (allFigurWaitOrInGoal()) {
-                println("Leider warten alle deine Figuren auf's einsetzen und dies kannst du nur mit einer 6\n der nächste Spieler ist dran")
-                bildAusgabe()
+                //println("Leider warten alle deine Figuren auf's einsetzen und dies kannst du nur mit einer 6\n der nächste Spieler ist dran")
+                bildAnweisungen.add("Leider warten alle deine Figuren auf's einsetzen und dies kannst du nur mit einer 6")
+                bildAnweisungen.add("der nächste Spieler ist dran")
+                //bildAusgabe()
                 return
-            } else print("Du hast eine $wurf geworfen, was möchtest du machen")
+            } else {
+                //print("Du hast eine $wurf geworfen, was möchtest du machen")
+                bildAnweisungen.add("Du hast eine $wurf geworfen, was möchtest du nun machen,")
+            }
         }
-        println(" welche Figur möchtest du bewegen?")
-
+        //println("welche Figur möchtest du bewegen?")
+        bildAnweisungen.add("welche Figur möchtest du bewegen?")
+        bildAusgabe()
         while (true){
-            val gewaehlteFigur = spielerFiguren[figurAuswahl()] // lässt einen eine Figur auswählen
+            val gewaehlteFigur = spielerFiguren[figurAuswahl()-1] // lässt einen eine Figur aus der liste des Spielers auswählen
 
             if (gewaehlteFigur.figurWait){
                 if (wurf == 6){
                     if (warteFigurSetzen(gewaehlteFigur)) {
-                        println("Spieler ${this.name} du darfst noch einmal würfeln")
+                        //println("Spieler ${this.name} du darfst noch einmal würfeln")
+                        bildAnweisungen.add("Spieler ${this.name} du darfst noch einmal würfeln")
                         spielzug()
                     } // funktion zu setzen aufrufen und ob gesetzt wurde zurückgeben
                 }else {
-                    println("Diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
+                    //println("${this.name}, diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
+                    bildAnweisungen.add("${this.name}, diese Figur kannst du nur mit einer 6 setzen, wähle eine andere")
+                    bildAnweisungen.add("Die ${gewaehlteFigur}. konntest du nicht bewegen, welche Figur möchtest du stattdessen bewegen")
                     // zurück zum while begin
                 }
             }else if (gewaehlteFigur.figurImZiel) {
-                println("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
+                //println("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
+                bildAnweisungen.add("Diese Figur ist bereits am Ziel und kann nicht weiter laufen, wähle eine andere")
+                bildAnweisungen.add("Die ${gewaehlteFigur}. konntest du nicht bewegen, welche Figur möchtest du stattdessen bewegen")
             }else if (gewaehlteFigur.figurLaeuft){
+                // wenn figur zu nah am Ziel und auch andere Figuren nicht gesetzt werden können
+                // TODO keine figur kann gesetzt werden weil sie zu nah am Ziel sind
+                if (!kannEineFigurBewegtWerden(wurf)) return
                 if (laufFigurSetzen(gewaehlteFigur,wurf)) {
                     if (wurf == 6) {
-                        println("Spieler ${this.name} du darfst noch einmal würfeln")
+                        //println("${this.name} du darfst noch einmal würfeln")
+                        bildAnweisungen.add("${this.name} du hattest eine 6, du darfst noch einmal würfeln")
                         spielzug()
                     }
                     return
@@ -98,17 +113,44 @@ class Spieler(val name:String) {
 
     }
 
+    fun kannEineFigurBewegtWerden(wurf: Int):Boolean{
+        var figurBewegbar = false
+        spielerFiguren.forEach{
+            if (it.figurWait && wurf == 6 && !laufFeldListePlayer[0].playerOnField) return true
+            else figurBewegbar = false
+            if (it.figurLaeuft){
+                val zielFeld = it.figurPositionAufLaufweg + wurf
+                if (zielFeld > 43){
+                    figurBewegbar = false
+                }else if (laufFeldListePlayer[zielFeld].playerOnField || (zielFeld in 40..43 && figurOnZielgeradeDavor(zielFeld))){
+                    // sollte das zeilfeld in der zielgeraden schon besetzt sein oder eine Figur vor dem Feld im Zielfeld stehen
+                    figurBewegbar = false
+                }else if (laufFeldListePlayer[zielFeld].playerOnField) {
+                    figurBewegbar = false
+                }else return true
+            }
+        }
+        return figurBewegbar // TODO
+    }
+
     private fun figurAuswahl():Int{
         while (true){
             try {
                 val figur = readln().toInt()
                 falscheZahlFigurException(figur)
+                return figur
             }catch (e:NumberFormatException){
-                println("Keine gültige Zahl, bitte noch einmal wählen 1-4")
+                //println("Keine gültige Zahl, bitte noch einmal wählen 1-4")
+                bildAnweisungen.add("${this.name}Keine gültige Zahl, bitte noch einmal wählen 1-4")
+                bildAusgabe()
             }catch (e:AnzahlZuGeringException){
-                println("Negative Figuren hast du nicht, bitte eine Zahl von 1 - 4 angeben")
+                //println("Negative Figuren hast du nicht, bitte eine Zahl von 1 - 4 angeben")
+                bildAnweisungen.add("Negative Figuren hast du nicht, bitte eine Zahl von 1 - 4 angeben")
+                bildAusgabe()
             }catch (e:AnzahlZuHochException){
-                println("Mehr als 4 figuren hast du nicht, bitte max eine 4 angeben")
+                //println("Mehr als 4 figuren hast du nicht, bitte max eine 4 angeben")
+                bildAnweisungen.add("Mehr als 4 figuren hast du nicht, bitte max eine 4 angeben")
+                bildAusgabe()
             }
         }
     }
@@ -121,7 +163,9 @@ class Spieler(val name:String) {
             // Besetztes Feld?
         if (zielFeld.playerOnField){ // Überprüft, ob schon eine Figur auf dem Feld steht
             if (zielFeld.playerID == spielerID){
-                println("Da steht schon eine Figur von Dir, wähle eine andere")
+                //println("Da steht schon eine Figur von Dir, wähle eine andere")
+                bildAnweisungen.add("Da steht schon eine Figur von Dir, wähle eine andere")
+                bildAnweisungen.add("Die ${gewaehlteFigur}. konntest du nicht bewegen, welche Figur möchtest du stattdessen bewegen")
                 return false
             }else rausWurf(zielFeld) // wen ja wird die Rauswurffunktion angestoßen
         }
@@ -144,7 +188,8 @@ class Spieler(val name:String) {
         val neuesZielFeldIndexOnPlayer = altesFeldIndexOnPlayer + wurf // ab hier größer 39 möglich (felder 0 - 39  zusammen 40 stück)
         val neuesZielFeld = laufFeldListePlayer[neuesZielFeldIndexOnPlayer] // das neue Zielfeld aus der Liste des Spielers entnehmen
         if (neuesZielFeldIndexOnPlayer > 43) { // sollte das Ziel rechnerisch größer als 43 sein wird direkt abgewürgt
-            println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
+            //println("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
+            bildAnweisungen.add("Dein Wurf ist zu hoch du kannst diese Figur nicht setzen")
             return false
 
         }else if (neuesZielFeldIndexOnPlayer < 40){ // Lauffelder sind kleiner 40 (0-39)
@@ -163,10 +208,12 @@ class Spieler(val name:String) {
         }else{
             when(neuesZielFeldIndexOnPlayer){
                 43 -> if (laufFeldListePlayer[43].playerOnField){
-                    println("Auf dem Zielplatz steht schon eine figur")
+                    //println("Auf dem Zielplatz steht schon eine figur")
+                    bildAnweisungen.add("Auf dem Zielplatz steht schon eine figur")
                     return false // die Figur wurde nicht gesetzt
                 }else if (figurOnZielgeradeDavor(neuesZielFeldIndexOnPlayer)){
-                    println("Es steht schon eine oder mehrere figuren davor die du nicht übespringen kannst")
+                    //println("Es steht schon eine oder mehrere figuren davor die du nicht überspringen kannst")
+                    bildAnweisungen.add("Es steht schon eine oder mehrere figuren davor die du nicht überspringen kannst")
                     return false // die Figur wurde nicht gesetzt
                 }else { // setzen auf Zielfeld
                     if (zielFeld(neuesZielFeldIndexOnPlayer))gewaehlteFigur.figurImZiel = true
@@ -206,10 +253,14 @@ class Spieler(val name:String) {
         return figurWait == 4
     }
     private fun wuerfeln():Int{
-        println("Spieler $name, du bist am Zug, zum würfeln bitte >>Enter<< drücken")
+        //println("Spieler $name, du bist am Zug, zum würfeln bitte >>Enter<< drücken")
+        bildanweisungInitClear()
+        bildAnweisungen.add("Spieler $name, du bist am Zug, zum würfeln bitte >>Enter<< drücken")
+        bildAusgabe()
         readln()
         val wurf = wurf()
-        println("Wurf:  >>>>>>>>> $wurf  <<<<<<<")
+        //println("Wurf:  >>>>>>>>> $wurf  <<<<<<<")
+        bildAnweisungen.add("Wurf:  >>>>>>>>> $wurf  <<<<<<<")
 
         return wurf
     }

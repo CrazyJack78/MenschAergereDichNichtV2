@@ -1,16 +1,19 @@
 
 fun startRoutine(){
     spielerAbfrage()
-
+    bildanweisungInitClear()
+    bildAnweisungen.add("Es nehmen ${playerInGame.size} Spieler am Spiel teil")
     playerInGame.forEachIndexed{index,player->
-        println("name player $index in game ${player.name}")
+        //println("Name von Spieler ${index+1} ${player.name}")
+        //bildanweisungSchreiben()
+        bildAnweisungen.add("Der ${index+1}. Spieler mit dem Startfeld:${player.startfeld} ist ${player.name}")
     }
 
     ersterAufbau()
 
     startBrettAufbau()
 
-    bildAusgabe()
+    //bildAusgabe()
 
 
 
@@ -36,11 +39,15 @@ fun spielerAbfrage(){
                     "Bitte nur 2-4 Spieler eingeben")
         }
     }
+    /*
     println("Spielerzahl: $anzahlSpieler") // Ausgabe Anzahl Spieler
+     */
 
     playerInGame = Array(anzahlSpieler){// Array mit spielenden Spielern wird erstellt
         Spieler(spielerNamen()) // SpielerKlassen mit Name werden erstellt / mit jeder Erstellung wird der Counter für die Spielerzahl und ID erhöht
     }
+
+
     println("Anzahl der Spieler im Spiel ${spielerCounter + 1}")
 }
 
